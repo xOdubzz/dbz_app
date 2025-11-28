@@ -20,12 +20,49 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.*
 import com.example.dbzapp.ui.theme.DBZappTheme
+import android.app.PendingIntent
+import android.content.Intent
+import android.nfc.NfcAdapter
 
 
 class MainActivity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
+
+    private var nfcAdapter: NfcAdapter? = null
+    private lateinit var pendingIntent: PendingIntent
+
+    override fun onResume() {
+        super.onResume()
+        nfcAdapter?.enableForegroundDispatch(this, pendingIntent, null, null)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        nfcAdapter?.disableForegroundDispatch(this)
+    }
+
+
+    override fun onNewIntent(intent: Intent?) {
+//        super.onNewIntent(Intent)
+
+        if (intent?.action == NfcAdapter.ACTION_TAG_DISCOVERED) {
+            // Cuando se detecta un tag NFC, enviamos un evento global
+//            NFCEventManager.realizarCobro()
+            var test = "test"
+        }
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?){
         super.onCreate(savedInstanceState)
+
         enableEdgeToEdge()
+        nfcAdapter = NfcAdapter.getDefaultAdapter(this)
+
+        pendingIntent = PendingIntent.getActivity(
+            this, 0,
+            Intent(this, javaClass).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP),
+            PendingIntent.FLAG_MUTABLE
+        )
+
         setContent {
             DBZappTheme {
                 AppNavegacion()
@@ -273,3 +310,10 @@ fun PantallaRecarga(onBack: () -> Unit) {
         }
     }
 }
+
+object NFCEvents {
+    var onNfcDetected: () -> Unit = {}
+}
+
+@Composable
+fun Prueba(){}
