@@ -30,9 +30,13 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.*
 import com.example.dbzapp.ui.theme.DBZappTheme
 
+public var nfcMessage = mutableStateOf(
+    "NFC no detectado"
+)
 class MainActivity : ComponentActivity() {
     // Variable de estado para comunicar la detección NFC a Compose
     private var nfcDetectedState = mutableStateOf(false)
+
     private var nfcAdapter: NfcAdapter? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -72,10 +76,11 @@ class MainActivity : ComponentActivity() {
     // Manejar la detección de NFC
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
+        handleNfcIntent(intent)
         if (intent.action == NfcAdapter.ACTION_TAG_DISCOVERED) {
             // aviso de deteccion de tarjeta
             nfcDetectedState.value = true
-            handleNfcIntent(intent)
+
         }
     }
     private fun handleNfcIntent(intent: Intent) {
@@ -90,6 +95,7 @@ class MainActivity : ComponentActivity() {
                     for (record in msg.records) {
                         val payload = String(record.payload)
                         Toast.makeText(this, "NFC leído: $payload", Toast.LENGTH_LONG).show()
+                        nfcMessage.value = payload
                     }
                 }
             }
@@ -296,6 +302,8 @@ fun PantallaPagoNFC(
                 style = MaterialTheme.typography.bodyLarge,
                 textAlign = TextAlign.Center
             )
+
+            Text(nfcMessage.value, textAlign = TextAlign.Center)
         }
 
         Spacer(modifier = Modifier.height(48.dp))
